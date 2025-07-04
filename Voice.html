@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Text to Speech Converter</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3); /* Subtle gradient background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow: auto; /* Allow scrolling if content overflows */
+        }
+        .card {
+            border-radius: 20px; /* More rounded corners */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); /* Stronger, softer shadow */
+            max-width: 750px; /* Slightly wider card */
+            width: 100%;
+            padding: 40px; /* More padding inside card */
+            background-color: #ffffff;
+            border: none; /* Remove default card border */
+            animation: fadeIn 0.8s ease-out; /* Fade-in animation for the card */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            color: #2c3e50; /* Darker, more professional heading color */
+            font-weight: 700;
+            margin-bottom: 35px;
+            text-align: center;
+            letter-spacing: -0.5px; /* Slight letter spacing adjustment */
+        }
+        .form-label {
+            font-weight: 600;
+            color: #4a4a4a;
+            margin-bottom: 10px;
+            font-size: 1.05rem; /* Slightly larger label font */
+        }
+        .form-control, .form-select {
+            border-radius: 10px; /* More rounded inputs */
+            padding: 14px 18px; /* More padding in inputs */
+            border: 1px solid #dcdcdc; /* Lighter border */
+            transition: all 0.3s ease-in-out; /* Smoother transitions */
+            font-size: 1rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #6a82fb; /* Focus color matching button primary */
+            box-shadow: 0 0 0 0.25rem rgba(106, 130, 251, 0.25); /* Softer focus shadow */
+            background-color: #fdfdff; /* Slight background change on focus */
+        }
+
+        /* Custom Button Styles */
+        .btn-custom-primary {
+            background: linear-gradient(45deg, #6a82fb, #fc5c7d); /* Vibrant gradient */
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-weight: 600;
+            color: white;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn-custom-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(45deg, #fc5c7d, #6a82fb); /* Reverse gradient on hover */
+        }
+        .btn-custom-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-custom-secondary {
+            background-color: #adb5bd; /* Softer gray */
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-weight: 600;
+            color: white;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .btn-custom-secondary:hover {
+            background-color: #95a0a8; /* Darker gray on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .btn-custom-secondary:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Animated Download Button */
+        .btn-animated-download {
+            position: relative;
+            overflow: hidden;
+            /* Animation properties */
+            animation: pulse 2s infinite cubic-bezier(0.66, 0, 0.34, 1);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(173, 181, 189, 0.7); }
+            70% { transform: scale(1.03); box-shadow: 0 0 0 15px rgba(173, 181, 189, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(173, 181, 189, 0); }
+        }
+
+        .alert {
+            border-radius: 10px;
+            font-size: 0.95rem;
+            padding: 15px;
+        }
+        .mt-4 { margin-top: 2rem !important; }
+        .mb-3 { margin-bottom: 1.25rem !important; }
+        .mb-4 { margin-bottom: 1.75rem !important; }
+
+        /* Loading Spinner */
+        .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1 class="mb-4">Web Text to Speech Converter</h1>
+
+        <!-- Text Input Area -->
+        <div class="mb-3">
+            <label for="textInput" class="form-label">Enter text:</label>
+            <textarea class="form-control" id="textInput" rows="8" placeholder="Type your text here..."></textarea>
+        </div>
+
+        <!-- Voice Selection Dropdown -->
+        <div class="mb-4">
+            <label for="voiceSelect" class="form-label">Select Voice Tone/Accent:</label>
+            <select class="form-select" id="voiceSelect">
+                <!-- Options will be populated by JavaScript -->
+            </select>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+            <button type="button" class="btn btn-custom-primary" id="speakButton">Speak Text</button>
+            <button type="button" class="btn btn-custom-secondary btn-animated-download" id="exportButton">
+                <span id="exportSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                Export to MP3
+            </button>
+        </div>
+
+        <!-- Message Area -->
+        <div id="messageArea" class="mt-4"></div>
+    </div>
+
+    <!-- Bootstrap JS CDN (Bundle with Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const speakButton = document.getElementById('speakButton');
+        const exportButton = document.getElementById('exportButton');
+        const exportSpinner = document.getElementById('exportSpinner');
+        const messageArea = document.getElementById('messageArea');
+
+        let voices = [];
+        // Define a mapping from Web Speech API lang codes to gTTS tld/lang
+        // This is a simplified mapping; gTTS doesn't have a 1:1 for all browser voices.
+        // We'll use the browser's lang code to infer gTTS lang and a common TLD.
+        const gttsLangMap = {
+            'en-US': { lang: 'en', tld: 'us' },
+            'en-GB': { lang: 'en', tld: 'co.uk' },
+            'en-AU': { lang: 'en', tld: 'com.au' },
+            'hi-IN': { lang: 'hi', tld: 'in' },
+            'es-ES': { lang: 'es', tld: 'es' },
+            'fr-FR': { lang: 'fr', tld: 'fr' },
+            'de-DE': { lang: 'de', tld: 'de' },
+            'ja-JP': { lang: 'ja', tld: 'co.jp' },
+            // Add more mappings as needed for other languages
+        };
+
+        function populateVoiceList() {
+            voices = speechSynthesis.getVoices();
+            voiceSelect.innerHTML = '';
+
+            const preferredLanguages = {
+                'en-US': 'English (US)',
+                'en-GB': 'English (UK)',
+                'en-AU': 'English (Australia)',
+                'hi-IN': 'Hindi (India)',
+                'es-ES': 'Spanish (Spain)',
+                'fr-FR': 'French (France)',
+                'de-DE': 'German (Germany)',
+                'ja-JP': 'Japanese (Japan)'
+            };
+
+            const defaultOption = document.createElement('option');
+            defaultOption.textContent = 'Select a voice...';
+            defaultOption.value = '';
+            voiceSelect.appendChild(defaultOption);
+
+            let defaultVoiceSet = false;
+
+            voices.forEach((voice) => {
+                const option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})`;
+                option.value = voice.name; // Use voice name as value
+
+                if (preferredLanguages[voice.lang] && !defaultVoiceSet) {
+                    option.selected = true;
+                    defaultVoiceSet = true;
+                }
+                voiceSelect.appendChild(option);
+            });
+
+            if (!defaultVoiceSet && voices.length > 0) {
+                voiceSelect.options[1].selected = true;
+            }
+
+            if (voices.length === 0) {
+                showMessage("No speech voices found on your system. Text-to-speech may not work.", "warning");
+            }
+        }
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        } else {
+            populateVoiceList();
+        }
+
+        function showMessage(message, type = "info") {
+            messageArea.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                                        ${message}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>`;
+        }
+
+        speakButton.addEventListener('click', () => {
+            const text = textInput.value.trim();
+            if (!text) {
+                showMessage("Please enter some text to speak.", "danger");
+                return;
+            }
+
+            if (!speechSynthesis) {
+                showMessage("Your browser does not support the Web Speech API.", "danger");
+                return;
+            }
+
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+
+            const selectedVoiceName = voiceSelect.value;
+            if (selectedVoiceName) {
+                const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                } else {
+                    showMessage("Selected voice not found. Using default voice.", "warning");
+                }
+            } else {
+                showMessage("No voice selected. Using default voice.", "info");
+            }
+
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+
+            speechSynthesis.speak(utterance);
+
+            utterance.onend = () => {
+                showMessage("Speech finished.", "success");
+            };
+
+            utterance.onerror = (event) => {
+                showMessage(`Speech error: ${event.error}`, "danger");
+                console.error('SpeechSynthesisUtterance.onerror', event);
+            };
+        });
+
+        exportButton.addEventListener('click', async () => {
+            const text = textInput.value.trim();
+            if (!text) {
+                showMessage("Please enter some text to export.", "danger");
+                return;
+            }
+
+            exportButton.disabled = true; // Disable button during processing
+            exportSpinner.style.display = 'inline-block'; // Show spinner
+            showMessage("Generating MP3... Please wait. This requires a running backend server.", "info");
+
+            // Determine gTTS language and TLD based on selected voice's lang code
+            const selectedVoice = voices.find(voice => voice.name === voiceSelect.value);
+            let gttsLang = 'en'; // Default gTTS language
+            let gttsTld = 'us'; // Default gTTS TLD
+
+            if (selectedVoice && gttsLangMap[selectedVoice.lang]) {
+                gttsLang = gttsLangMap[selectedVoice.lang].lang;
+                gttsTld = gttsLangMap[selectedVoice.lang].tld;
+            } else {
+                showMessage("No specific gTTS voice mapping found for selected browser voice. Using default English (US).", "warning");
+            }
+
+
+            try {
+                // Make a fetch request to your backend server
+                // IMPORTANT: Replace 'http://127.0.0.1:5000/generate-mp3' with your actual backend URL
+                const response = await fetch('http://127.0.0.1:5000/generate-mp3', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        lang: gttsLang,
+                        tld: gttsTld
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server error: ${response.status} ${response.statusText} - ${errorText}`);
+                }
+
+                const blob = await response.blob(); // Get the response as a Blob
+                const url = window.URL.createObjectURL(blob); // Create a URL for the Blob
+                const a = document.createElement('a'); // Create a temporary anchor element
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'speech.mp3'; // Set the download filename
+                document.body.appendChild(a);
+                a.click(); // Programmatically click the link to trigger download
+                window.URL.revokeObjectURL(url); // Clean up the URL object
+
+                showMessage("MP3 file generated and downloaded!", "success");
+
+            } catch (error) {
+                showMessage(`Failed to generate or download MP3: ${error.message}. Please ensure your Python backend server is running.`, "danger");
+                console.error("MP3 Export Error:", error);
+            } finally {
+                exportButton.disabled = false; // Re-enable button
+                exportSpinner.style.display = 'none'; // Hide spinner
+            }
+        });
+
+        setTimeout(populateVoiceList, 100);
+    </script>
+</body>
+</html>
